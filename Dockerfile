@@ -15,6 +15,8 @@ RUN apk add openssh \
     && cd /etc/ssh/ \
     && ssh-keygen -A
 
+RUN apk add postgresql-client
+
 COPY requirements.txt /app
 RUN pip3 install -r requirements.txt
 
