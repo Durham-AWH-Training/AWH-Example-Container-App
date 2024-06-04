@@ -4,21 +4,21 @@ FROM python:3.10-alpine
 
 WORKDIR /app
 
+COPY sshd_config /etc/ssh/
+COPY app.py /app
+COPY entrypoint.sh /app
+
+# Start and enable SSH
+RUN apk add openssh \
+    && echo "root:Docker!" | chpasswd \
+    && chmod +x ./entrypoint.sh \
+    && cd /etc/ssh/ \
+    && ssh-keygen -A
+
 COPY requirements.txt /app
 RUN pip3 install -r requirements.txt
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends dialog \
-    && apt-get install -y --no-install-recommends openssh-server \
-    && echo "root:Docker!" | chpasswd \
-    && chmod u+x ./entrypoint.sh
-
-COPY app.py /app
-COPY sshd_config /etc/ssh/
-
-COPY entrypoint.sh /app
-
-EXPOSE 2222
+EXPOSE 8000 2222
 
 ENTRYPOINT ["./entrypoint.sh"] 
 
