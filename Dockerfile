@@ -7,8 +7,18 @@ WORKDIR /app
 COPY requirements.txt /app
 RUN pip3 install -r requirements.txt
 
-COPY . /app
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends dialog \
+    && apt-get install -y --no-install-recommends openssh-server \
+    && echo "root:Docker!" | chpasswd \
+    && chmod u+x ./entrypoint.sh
 
-ENTRYPOINT ["python3"]
-CMD ["app.py"]
+COPY app.py /app
+COPY sshd_config /etc/ssh/
+
+COPY entrypoint.sh /app
+
+EXPOSE 2222
+
+ENTRYPOINT ["./entrypoint.sh"] 
 
